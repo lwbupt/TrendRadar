@@ -1,0 +1,38 @@
+name: 3-Day Check In
+
+# 每 3 天凌晨 3 点（北京时间）自动签到，重置 7 天计时
+# Every 3 days at 3:00 AM (Beijing Time)
+
+on:
+  schedule:
+    # 每 3 天运行一次（北京时间凌晨 3 点）
+    # UTC 时间：前一天 19:00
+    - cron: '0 19 */3 * *'
+
+  workflow_dispatch:  # 支持手动触发
+
+jobs:
+  checkin:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Delete all workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
+          delete_workflow_by_state_pattern: "ALL"
+          delete_run_by_conclusion_pattern: "ALL"
+
+      - name: Confirm check-in
+        run: |
+          echo "✅ 3-Day Check-In completed!"
+          echo "📅 7-day timer has been reset"
+          echo "🔄 'Get Hot News' workflow will continue running"
+          echo ""
+          echo "Next check-in: Every 3 days at 3:00 AM (Beijing Time)"
+          echo "For example: Feb 26, Mar 1, Mar 4, Mar 7, ..."
